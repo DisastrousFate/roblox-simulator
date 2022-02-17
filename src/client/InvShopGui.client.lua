@@ -125,45 +125,46 @@ shopGui.Exit.MouseButton1Click:Connect(function()
 end)
 
 -- Inventory Frame
-
 local invLatestButton
 local invActiveButtons = {}
 
-for i,button in pairs(invBorderFrame:GetDescendants()) do -- Display item when pressed on left menu.
-    if button:IsA("ImageButton") then
-        print(button)
-        button.Activated:Connect(function()
-            
-            invLatestButton = button
-            if invDisplayFrame.ImageFrame.ViewportFrame ~= nil then
-                invDisplayFrame.ImageFrame.ViewportFrame:Destroy()
-            end
-            local clone = button.ViewportFrame:Clone()
-            clone.Parent = invDisplayFrame.ImageFrame
-            TweenService:Create(clone.Part, TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1, false, 0), {Orientation = Vector3.new(0,360,0)}):Play()
-            for name,description in pairs(itemDescriptions) do
-                if button.Name == name then
-                    invDisplayFrame.MainFrame.TextLabel.Text = description
-                end
-            end
-            invGui.MainFrame.BuyButton.Visible = true
-            invGui.MainFrame.Price.Text = "Price: $"..button.Price.Value
+local function inventory()
+    print("Here!")
+    for i,button in pairs(invBorderFrame:GetDescendants()) do -- Display item when pressed on left menu.
+        if button:IsA("ImageButton") then
 
-            if not table.find(invActiveButtons, button) then -- If not item duplicates, only add to connection if item is not duplicate
-                invGui.MainFrame.BuyButton.MouseButton1Click:Connect(function() -- Buy item
-                    if button == invLatestButton then
-                        InvokeInventory:FireServer("Buy", button.Name) 
+            button.Activated:Connect(function()
+                invLatestButton = button
+                if invDisplayFrame.ImageFrame.ViewportFrame ~= nil then
+                    invDisplayFrame.ImageFrame.ViewportFrame:Destroy()
+                end
+                local clone = button.ViewportFrame:Clone()
+                clone.Parent = invDisplayFrame.ImageFrame
+                TweenService:Create(clone.Part, TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1, false, 0), {Orientation = Vector3.new(0,360,0)}):Play()
+                for name,description in pairs(itemDescriptions) do
+                    if button.Name == name then
+                        invDisplayFrame.MainFrame.TextLabel.Text = description
                     end
-                end)
-            else
-                print(table.find(invActiveButtons, button))
-                table.remove(invActiveButtons, table.find(invActiveButtons, button)) -- Delete duplicates so multiple items arent bought accidentally
-            end
-            
-            if button == invLatestButton then
-                table.insert(invActiveButtons, button) -- Insert into items table. Later checked for duplicates.
-            end
-        end)
+                end
+                invGui.MainFrame.EquipButton.Visible = true
+                invGui.MainFrame.Price.Text = "Price: $"..button.Price.Value
+    
+                if not table.find(invActiveButtons, button) then -- If not item duplicates, only add to connection if item is not duplicate
+                    invGui.MainFrame.BuyButton.MouseButton1Click:Connect(function() -- Buy item
+                        if button == invLatestButton then
+                            InvokeInventory:FireServer("Buy", button.Name) 
+                        end
+                    end)
+                else
+                    print(table.find(invActiveButtons, button))
+                    table.remove(invActiveButtons, table.find(invActiveButtons, button)) -- Delete duplicates so multiple items arent bought accidentally
+                end
+                
+                if button == invLatestButton then
+                    table.insert(invActiveButtons, button) -- Insert into items table. Later checked for duplicates.
+                end
+            end)
+        end
     end
 end
 
@@ -226,7 +227,15 @@ for _,item in ipairs(savedInv.Inventory) do
     end
 end
 
-
+inventory()
+connection = nil
+for _,v in pairs(invBorderFrame:GetChildren()) do
+    if v:IsA("ScrollingFrame") then
+        v.ChildAdded:Connect(inventory)
+       
+    end
+    
+end
 
 
 

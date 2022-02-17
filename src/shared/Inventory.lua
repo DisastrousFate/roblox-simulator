@@ -42,7 +42,6 @@ end
 function Inventory:GetInventory(playerName)
     for name, inv in pairs(AllInventories) do
         if name == playerName then
-            print(AllInventories)
             return inv
          end
     end
