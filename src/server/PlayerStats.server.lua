@@ -54,6 +54,10 @@ Players.PlayerAdded:Connect(function(player)
         if plr == player then
             if type == "Buy" then
                 plrInv:Add(item)
+            elseif type == "Equip" then
+                plrInv:Equip(item)
+            elseif type == "Unequip" then
+                plrInv:Unequip(item)
             end
         end
     end)

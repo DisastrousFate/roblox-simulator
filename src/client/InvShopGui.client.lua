@@ -129,11 +129,12 @@ local invLatestButton
 local invActiveButtons = {}
 
 local function inventory()
-    print("Here!")
+    invGui.MainFrame.EquipButton.Visible = false
     for i,button in pairs(invBorderFrame:GetDescendants()) do -- Display item when pressed on left menu.
         if button:IsA("ImageButton") then
 
             button.Activated:Connect(function()
+                
                 invLatestButton = button
                 if invDisplayFrame.ImageFrame.ViewportFrame ~= nil then
                     invDisplayFrame.ImageFrame.ViewportFrame:Destroy()
@@ -146,13 +147,30 @@ local function inventory()
                         invDisplayFrame.MainFrame.TextLabel.Text = description
                     end
                 end
-                invGui.MainFrame.EquipButton.Visible = true
-                invGui.MainFrame.Price.Text = "Price: $"..button.Price.Value
+
+                eButton = nil
+
+                local equipped = InvokeInventoryReturn:InvokeServer("Get", "")
+                equipped = equipped.Equipped
+                if button.Name == equipped then
+                    invGui.MainFrame.EquipButton.Visible = false
+                    invGui.MainFrame.UnequipButton.Visible = true
+                    eButton = invGui.MainFrame.UnequipButton
+                else
+                    invGui.MainFrame.EquipButton.Visible = true
+                    invGui.MainFrame.UnequipButton.Visible = false
+                    eButton = invGui.MainFrame.EquipButton
+                end
     
                 if not table.find(invActiveButtons, button) then -- If not item duplicates, only add to connection if item is not duplicate
-                    invGui.MainFrame.BuyButton.MouseButton1Click:Connect(function() -- Buy item
+                    eButton.MouseButton1Click:Connect(function() -- Buy item
                         if button == invLatestButton then
-                            InvokeInventory:FireServer("Buy", button.Name) 
+                            if eButton.Name == "EquipButton" then
+                                InvokeInventory:FireServer("Equip", button.Name) 
+                            elseif eButton.Name == "UnequipButton" then
+                                InvokeInventory:FireServer("Unequip", button.Name)
+                            end
+                            
                         end
                     end)
                 else

@@ -16,12 +16,12 @@ local gameItems = {
 local Inventory = {}
 Inventory.__index = Inventory
 
-function Inventory:Equip()
-
+function Inventory:Equip(item)
+    print("Equipped"..item)
 end
 
-function Inventory:Unequip()
-
+function Inventory:Unequip(item)
+    print("Unequipped"..item)
 end
 
 function Inventory:Add(item)
